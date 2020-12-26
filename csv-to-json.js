@@ -2,7 +2,13 @@ const filenames = Deno.args;
 
 for (const filename of filenames) {
   const text = await Deno.readTextFile(filename);
-  const [cColumns, ...cRows] = text.trim(/\s/g).split("\n");
+
+  const result = converter(text);
+  await Deno.writeTextFile(filename.replace(".csv", ".json"), result);
+}
+
+function converter(csvText) {
+  const [cColumns, ...cRows] = csvText.trim(/\s/g).split("\n");
   const columns = cColumns.split(",");
   const rows = cRows.map((row) => row.split(","));
   const json = rows.map((values) => (
@@ -12,6 +18,5 @@ for (const filename of filenames) {
     }, {})
   ));
 
-  const result = JSON.stringify(json, null, "  ");
-  await Deno.writeTextFile(filename.replace(".csv", ".json"), result);
+  return JSON.stringify(json, null, "  ");
 }
